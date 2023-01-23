@@ -1,0 +1,35 @@
+import json
+import requests
+from bs4 import BeautifulSoup
+# Step 1: Scrape the index webpage
+url = "https://www.cfcunderwriting.com/"
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+# Step 2: Write a list of all externally loaded resources to a JSON output file
+resources = []
+for link in soup.find_all("link"):
+    resources.append(link.get("href"))
+for img in soup.find_all("img"):
+    resources.append(img.get("src"))
+for script in soup.find_all("script"):
+    resources.append(script.get("src"))
+with open("resources.json", "w") as f:
+    json.dump(resources, f)
+privacy_policy_url = "https://www.cfcunderwriting.com/en-gb/support/privacy-policy/"
+# Step 4: Scrape the content of the privacy policy page
+response = requests.get(privacy_policy_url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+# Use the privacy policy URL identified in step 3 and scrape the pages content.
+# Produce a case-insensitive word frequency count for all of the visible text on the page.
+text = soup.get_text().lower()
+words = text.split()
+frequency_count = {}
+for word in words:
+    if word in frequency_count:
+        frequency_count[word] += 1
+    else:
+        frequency_count[word] = 1
+
+with open("frequency_count.json", "w") as f:
+    json.dump(frequency_count, f)
